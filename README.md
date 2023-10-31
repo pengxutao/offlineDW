@@ -1446,7 +1446,7 @@ dim 层存储维度表，使用 orc 列式存储 + snappy 压缩，其中用户�
 ### <span id="head77">3.2.5 用户维度表</span>
 用户维度表采用拉链表，使用"start_date"和"end_date"两个字段标识数据的生效时间和失效时间，至今有效的数据存在"9999-12-31"分区，
 当日失效的数据存进当日对应的分区。数据装载的思路为：9999-12-31分区的数据 union 上今日新增及变化的数据，使用 row_number 函数开窗，
-根据 uid 分组，创建时间降序排序，rn 值为 1 的是有效数据，写进 9999-12-31 分区，为 2 的是今日失效数据，写进今日对应的分区。
+根据 uid 分组，创建时间降序排序，rn 值为 1 的是有效数据，写进 9999-12-31 分区，为 2 的是今日失效数据，写进今日对应的分区。  
 建表语句：
 ```DROP TABLE IF EXISTS dim_user_zip;
    CREATE EXTERNAL TABLE dim_user_zip
@@ -1847,7 +1847,7 @@ dwd 层存储事实表，粒度选择最细粒度，存储格式采用 orc 列�
 累积型快照事实表主要用于分析业务过程（里程碑）之间的时间间隔等需求，例如用户下单到支付的平均时间间隔，使用累积型快照事实表进行统计，
 就能避免两个事务事实表的关联操作，从而变得十分简单高效。  
 数据装载思路：9999-12-31分区存放至今未完成的订单，其他分区存放该日完成的订单。数据装载时，将9999-12-31分区数据 union 今日新增下单数据，得到的就是至今为止可能未完成的订单，再 left join 今日
-支付的数据，left join 今日完成的订单数据，三个时间字段均有值说明订单今日完成，写入今日对应的分区，否则订单未完成，写入9999-12-31分区。
+支付的数据，left join 今日完成的订单数据，三个时间字段均有值说明订单今日完成，写入今日对应的分区，否则订单未完成，写入9999-12-31分区。  
 建表语句：
 ```DROP TABLE IF EXISTS dwd_trade_trade_flow_acc;
    CREATE EXTERNAL TABLE dwd_trade_trade_flow_acc
@@ -2762,7 +2762,7 @@ ads 层存放我们最终的统计指标，不分区，使用一个时间字段�
 ```
 #### <span id="head103">3.5.1.2 路径分析</span>
 统计从 source 页面跳到 target 页面的跳转次数，页面格式为"step-n:page_id"，n 为该会话的第几跳。  数据装载思路：首先从 dwd 层页面浏览事务事实表
-计算出本页面 id 和下一跳页面 id 及该页面在会话中是第几跳，再进行拼接得到 source 和 target，最后统计 source 到 target 的总次数。
+计算出本页面 id 和下一跳页面 id 及该页面在会话中是第几跳，再进行拼接得到 source 和 target，最后统计 source 到 target 的总次数。  
 建表语句：
 ```DROP TABLE IF EXISTS ads_page_path;
    CREATE EXTERNAL TABLE ads_page_path
@@ -3019,7 +3019,7 @@ ads 层存放我们最终的统计指标，不分区，使用一个时间字段�
    group by tm_id,tm_name;
 ```
 #### <span id="head110">3.5.3.2 各分类商品购物车存量Top3</span>
-统计各分类商品购物车存量 top3。从购物车周期快照事实表统计得到，根据品类分组，按件数降序排列取前三。
+统计各分类商品购物车存量 top3。从购物车周期快照事实表统计得到，根据品类分组，按件数降序排列取前三。  
 建表语句：
 ```DROP TABLE IF EXISTS ads_sku_cart_num_top3_by_cate;
    CREATE EXTERNAL TABLE ads_sku_cart_num_top3_by_cate
